@@ -1,0 +1,38 @@
+default:
+  before_script:
+    - npm i -g npm
+    - echo node $(node --version)
+    - echo npm $(npm --version)
+    - npm ci --cache .npm --prefer-offline
+  cache:
+    key:
+      files:
+        - package-lock.json
+      prefix: ${CI_PROJECT_NAME}
+    paths:
+      - .npm/
+
+variables:
+  # Disable AWS profile in GitLab Runner to avoid unintended access during `cdk synth`.
+  # If you use your AWS account to deploy CDK apps, you should remove this, then set secret varibales in GitLab CI/CD settings from web.
+  AWS_PROFILE: ''
+  AWS_DEFAULT_REGION: ''
+  AWS_ACCESS_KEY_ID: ''
+  AWS_SECRET_ACCESS_KEY: ''
+
+.node-build: &node-build
+  - npm run depcheck && npm run depcheck --workspaces
+  - npm run lint:ci
+  - npm run format:ci
+  - npm run build --workspaces
+  - npm run test --workspaces
+  # Delete product-stack-snapshots which is created by test.
+  # Without this step, synth fails.
+  - npm run clean:product --workspace usecases/blea-gov-base-ct
+  - npm run synth --workspaces
+
+build-node18:
+  stage: build
+  image: node:18
+  script:
+    - *node-build

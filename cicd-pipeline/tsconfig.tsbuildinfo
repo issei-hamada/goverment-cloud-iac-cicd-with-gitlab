@@ -1,0 +1,1 @@
+{"root":["./bin/cicd-pipeline.ts","./lib/construct/code-repository.ts","./lib/construct/gitlab.ts","./lib/construct/pipeline.ts","./lib/stack/gitlab-stack.ts","./lib/stack/pipeline-stack.ts"],"version":"5.6.2"}
